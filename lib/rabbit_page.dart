@@ -10,86 +10,45 @@ class RabbitPage extends StatefulWidget {
 }
 
 class _RabbitPageState extends State<RabbitPage> with TickerProviderStateMixin {
-  late AnimationController bodyController = AnimationController(vsync: this)
-    ..duration = const Duration(seconds: 10)
-    ..forward();
-  late AnimationController fillController = AnimationController(vsync: this)
-    ..duration = const Duration(seconds: 1);
-  late AnimationController fillRadishHeaderController = AnimationController(vsync: this)
-    ..duration = const Duration(seconds: 1);
-  late AnimationController fillRadishBodyController = AnimationController(vsync: this)
-    ..duration = const Duration(seconds: 1);
-  late AnimationController fillLeftEarController = AnimationController(vsync: this)
-    ..duration = const Duration(seconds: 1);
-  late AnimationController fillRightEarController = AnimationController(vsync: this)
-    ..duration = const Duration(seconds: 1);
-  late AnimationController fillLeftFaceController = AnimationController(vsync: this)
-    ..duration = const Duration(seconds: 1);
-  late AnimationController fillRightFaceController = AnimationController(vsync: this)
-    ..duration = const Duration(seconds: 1);
 
-  late Animation bodyAnimation;
-  late Animation fillAnimation;
-  late Animation fillRadishHeaderAnimation;
-  late Animation fillRadishBodyAnimation;
-  late Animation fillLeftEarAnimation;
-  late Animation fillRightEarAnimation;
-  late Animation fillLeftFaceAnimation;
-  late Animation fillRightFaceAnimation;
+  final animationDurationMap = {
+    "border": const Duration(seconds: 10),
+    "fillBody": const Duration(seconds: 1),
+    "fillRadishLeaf": const Duration(milliseconds: 300),
+    "fillRadishBody": const Duration(milliseconds: 600),
+    "fillLeftEar": const Duration(milliseconds: 600),
+    "fillRightEar": const Duration(milliseconds: 600),
+    "fillLeftFace": const Duration(milliseconds: 300),
+    "fillRightFace": const Duration(milliseconds: 300),
+  };
+
+  final animationControllerMap = <String, AnimationController>{};
+
+
+  void initAnimation(){
+    for (var key in animationDurationMap.keys) {
+      if(key == "border"){
+        animationControllerMap[key] = AnimationController(vsync: this, upperBound: 15.0)
+          ..duration = animationDurationMap[key];
+      }else{
+        animationControllerMap[key] = AnimationController(vsync: this)
+          ..duration = animationDurationMap[key];
+      }
+    }
+
+    var animations = animationControllerMap.values.toList();
+    for(int i=0; i<animations.length - 1; i++){
+      var current = animations[i];
+      var next = animations[ i + 1 ];
+      exec(current, next);
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    bodyAnimation = Tween(begin: 0.0, end: 15.0).animate(CurvedAnimation(parent: bodyController, curve: Curves.linear));
-    fillAnimation = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(parent: fillController, curve: Curves.linear));
-    fillRadishHeaderAnimation = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(parent: fillRadishHeaderController, curve: Curves.linear));
-    fillRadishBodyAnimation = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(parent: fillRadishBodyController, curve: Curves.linear));
-    fillLeftEarAnimation = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(parent: fillLeftEarController, curve: Curves.linear));
-    fillRightEarAnimation = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(parent: fillRightEarController, curve: Curves.linear));
-    fillLeftFaceAnimation = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(parent: fillLeftFaceController, curve: Curves.linear));
-    fillRightFaceAnimation = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(parent: fillRightFaceController, curve: Curves.linear));
-
-    bodyAnimation.addStatusListener((status) {
-      if(status == AnimationStatus.completed){
-        fillController.forward();
-      }
-    });
-
-    fillController.addStatusListener((status) {
-      if(status == AnimationStatus.completed){
-        fillRadishHeaderController.forward();
-      }
-    });
-
-    fillRadishHeaderController.addStatusListener((status) {
-      if(status == AnimationStatus.completed){
-        fillRadishBodyController.forward();
-      }
-    });
-
-    fillRadishBodyController.addStatusListener((status) {
-      if(status == AnimationStatus.completed){
-        fillLeftEarController.forward();
-      }
-    });
-
-    fillLeftEarController.addStatusListener((status) {
-      if(status == AnimationStatus.completed){
-        fillRightEarController.forward();
-      }
-    });
-
-    fillRightEarController.addStatusListener((status) {
-      if(status == AnimationStatus.completed){
-        fillLeftFaceController.forward();
-      }
-    });
-
-    fillLeftFaceController.addStatusListener((status) {
-      if(status == AnimationStatus.completed){
-        fillRightFaceController.forward();
-      }
-    });
+    initAnimation();
+    animationControllerMap.values.first.forward();
   }
 
 
@@ -101,23 +60,8 @@ class _RabbitPageState extends State<RabbitPage> with TickerProviderStateMixin {
       child: Center(
         child: CustomPaint(
           painter: RabbitPainter(controller:
-          Listenable.merge([bodyAnimation,
-            fillController,
-            fillRadishHeaderController,
-            fillRadishBodyController,
-            fillLeftEarController,
-            fillRightEarController,
-            fillLeftFaceController,
-            fillRightFaceController
-          ]),
-              bodyAnimation: bodyAnimation,
-              fillAnimation: fillAnimation,
-            fillRadishHeaderAnimation: fillRadishHeaderAnimation,
-            fillRadishBodyAnimation: fillRadishBodyAnimation,
-            fillLeftEarAnimation: fillLeftEarAnimation,
-            fillRightEarAnimation: fillRightEarAnimation,
-            fillLeftFaceAnimation: fillLeftFaceAnimation,
-            fillRightFaceAnimation: fillRightFaceAnimation
+          Listenable.merge(animationControllerMap.values.toList()),
+            animationMap: animationControllerMap
           ),
           size: Size(0.8.sw, 1.sw),
         ),
@@ -132,5 +76,13 @@ class _RabbitPageState extends State<RabbitPage> with TickerProviderStateMixin {
             maxHeight: MediaQuery.of(context).size.height),
         designSize: const Size(375, 812),
         context: context);
+  }
+
+  void exec(AnimationController current, AnimationController next){
+    current.addStatusListener((status) {
+      if(status == AnimationStatus.completed){
+        next.forward();
+      }
+    });
   }
 }

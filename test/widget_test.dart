@@ -27,4 +27,10 @@ void main() {
     expect(find.text('0'), findsNothing);
     expect(find.text('1'), findsOneWidget);
   });
+
+  test("description", (){
+    var list = [0,1,2,3,4,5,6];
+    print(list.sublist(1, 4));
+    print(list.sublist(4, 7));
+  });
 }
