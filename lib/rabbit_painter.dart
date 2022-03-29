@@ -38,7 +38,7 @@ class RabbitPainter extends CustomPainter{
 
   @override
   void paint(Canvas canvas, Size size) async{
-    _paint.color = Color(0xFFDAA520);
+    _paint.color = Color(0xFFFFE4B5);
     _paint.style = PaintingStyle.fill;
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), _paint);
     // canvas.drawImageRect(image, src, dst, paint)
@@ -69,10 +69,10 @@ class RabbitPainter extends CustomPainter{
     var rightHandsFeetPath = createThreePath(rightHandsFeetPoints);
 
     /// 胡萝卜叶 path
-    Path radishHeadPath = createRadishLeafPath(leftHandsFeetPoints, rightFirstPosition);
+    Path radishLeafPath = createRadishLeafPath(leftHandsFeetPoints, rightFirstPosition);
 
     /// 嘴 path
-    var mouthPoints = createMouthPoints(radishHeadPath);
+    var mouthPoints = createMouthPoints(radishLeafPath);
     var mouthPath = createThreePath(mouthPoints);
 
     /// 左眼 path
@@ -85,7 +85,7 @@ class RabbitPainter extends CustomPainter{
     var tailPath = createTailPath(rightBodyPath);
 
     /// 胡萝卜顶端 path
-    Path radishTopPath = createRadishTopPath(leftHandsFeetPath, radishHeadPath, rightHandsFeetPath);
+    Path radishTopPath = createRadishTopPath(leftHandsFeetPath, radishLeafPath, rightHandsFeetPath);
 
     /// 胡萝卜底部 path
     Path radishBottomPath = createRadishBottomPath(leftHandsFeetPath, rightHandsFeetPath);
@@ -130,17 +130,17 @@ class RabbitPainter extends CustomPainter{
     /// 绘制右脸腮红
     drawRightFaceFill(canvas, rightFirstPosition);
 
-    /// 绘制左右填充
+    /// 绘制左耳填充
     drawLeftEarFill(canvas, leftFirstPosition);
 
-    /// 绘制右脸填充
+    /// 绘制右耳填充
     drawRightEarFill(canvas, rightFirstPosition);
 
     _paint.style = PaintingStyle.fill;
     _paint.color = Colors.green;
 
     /// 绘制萝卜叶填充
-    drawRadishLeafFill(canvas, radishHeadPath);
+    drawRadishLeafFill(canvas, radishLeafPath);
 
 
     /// 创建萝卜填充的path
@@ -167,7 +167,7 @@ class RabbitPainter extends CustomPainter{
       earPath,
       leftHandsFeetPath,
       rightHandsFeetPath,
-      radishHeadPath,
+      radishLeafPath,
       mouthPath,
       leftEyesPath,
       rightEyesPath,
@@ -225,9 +225,9 @@ class RabbitPainter extends CustomPainter{
       Path tailPath
       ) {
     var whitePath = Path();
-    var positionFromPathPercent = earPath.getPositionFromPercent(0);
+    var earFirstPosition = earPath.getPositionFromPercent(0);
     whitePath
-      ..moveTo(positionFromPathPercent.dx, positionFromPathPercent.dy)
+      ..moveTo(earFirstPosition.dx, earFirstPosition.dy)
       ..addPointsFromPath(earPath)
       ..addPointsFromPath(rightBodyPath)
       ..addPointsFromPath(rightHandsFeetPath.getPathFromPercent(0.9, 1), isReverse: true)
@@ -241,29 +241,41 @@ class RabbitPainter extends CustomPainter{
 
   /// 创建右眼path
   Path createRightEyesPath(Offset rightFirstPosition) {
+    var point1 = Offset(rightFirstPosition.dx - 15.w, rightFirstPosition.dy + 50.w);
+    var point2 = Offset(point1.dx + 10.w, point1.dy - 13.w);
+    var point3 = Offset(point1.dx + 20.w, point1.dy);
+
      Path rightEyesPath = Path();
-    var rightEyesPosition1 = Offset(rightFirstPosition.dx - 15.w, rightFirstPosition.dy + 50.w);
-    rightEyesPath.moveToPoint(rightEyesPosition1);
-    rightEyesPath.quadraticBezierTo(rightEyesPosition1.dx + 10.w, rightEyesPosition1.dy - 13.w, rightEyesPosition1.dx + 20.w, rightEyesPosition1.dy);
+    rightEyesPath.moveToPoint(point1);
+    rightEyesPath.quadraticBezierToPoints([point2, point3]);
     return rightEyesPath;
   }
 
   /// 创建左眼path
   Path createLeftEyesPath(List<Offset> leftBodyPoints) {
+    var point1 = Offset(leftBodyPoints.first.dx - 5.w, leftBodyPoints.first.dy + 50.w);
+    var point2 = Offset(point1.dx + 10.w, point1.dy - 13.w);
+    var point3 = Offset(point1.dx + 20.w, point1.dy);
+
     Path leftEyesPath = Path();
-    var leftEyesPosition1 = Offset(leftBodyPoints.first.dx - 5.w, leftBodyPoints.first.dy + 50.w);
-    leftEyesPath.moveToPoint(leftEyesPosition1);
-    leftEyesPath.quadraticBezierTo(leftEyesPosition1.dx + 10.w, leftEyesPosition1.dy - 13.w, leftEyesPosition1.dx + 20.w, leftEyesPosition1.dy);
+    leftEyesPath.moveToPoint(point1);
+    leftEyesPath.quadraticBezierToPoints([point2, point3]);
     return leftEyesPath;
   }
 
   /// 创建胡萝卜叶的path
   Path createRadishLeafPath(List<Offset> leftHandsFeetPoints, Offset rightFirstPosition) {
-    Path radishLeafPath = Path();
-    radishLeafPath.moveTo(leftHandsFeetPoints.first.dx + 20.w, leftHandsFeetPoints.first.dy - 5.w);
-    radishLeafPath.cubicTo(leftHandsFeetPoints.first.dx -5.w, leftHandsFeetPoints.first.dy -45.w, leftHandsFeetPoints.first.dx  + 45.w, leftHandsFeetPoints.first.dy-45.w, leftHandsFeetPoints.first.dx + 35.w, leftHandsFeetPoints.first.dy - 10.w);
 
-    radishLeafPath.cubicTo(leftHandsFeetPoints.first.dx + 40.w, leftHandsFeetPoints.first.dy -35.w, rightFirstPosition.dx  + 0.w, leftHandsFeetPoints.first.dy-35.w, leftHandsFeetPoints.first.dx + 50.w, leftHandsFeetPoints.first.dy - 5.w);
+    var point1 = Offset(leftHandsFeetPoints.first.dx + 20.w, leftHandsFeetPoints.first.dy - 5.w);
+    var point2 = Offset(leftHandsFeetPoints.first.dx -5.w, leftHandsFeetPoints.first.dy -45.w);
+    var point3 = Offset(leftHandsFeetPoints.first.dx  + 45.w, leftHandsFeetPoints.first.dy-45.w);
+    var point4 = Offset(leftHandsFeetPoints.first.dx + 35.w, leftHandsFeetPoints.first.dy - 10.w);
+    var point5 = Offset(leftHandsFeetPoints.first.dx + 40.w, leftHandsFeetPoints.first.dy -35.w);
+    var point6 = Offset(rightFirstPosition.dx  + 0.w, leftHandsFeetPoints.first.dy-35.w);
+    var point7 = Offset(leftHandsFeetPoints.first.dx + 50.w, leftHandsFeetPoints.first.dy - 5.w);
+
+    var points = [point1, point2,  point3, point4, point5, point6, point7];
+    Path radishLeafPath = createThreePath(points);
     return radishLeafPath;
   }
 
@@ -272,10 +284,18 @@ class RabbitPainter extends CustomPainter{
   Path createEarPath(Offset leftFirstPosition, Offset rightFirstPosition) {
 
     var centerWidth = rightFirstPosition.dx - leftFirstPosition.dx;
-    Path earPath = Path();
-    earPath.moveTo(leftFirstPosition.dx, leftFirstPosition.dy);
-    earPath.cubicTo(leftFirstPosition.dx  -50.w, -20.w, leftFirstPosition.dx  + centerWidth/2, -20.w, leftFirstPosition.dx  + centerWidth/2, leftFirstPosition.dy);
-    earPath.cubicTo(leftFirstPosition.dx  + centerWidth/2 + 5.w, -12.w, rightFirstPosition.dx  + 55.w, -12.w, rightFirstPosition.dx, rightFirstPosition.dy);
+
+    var position1 = Offset(leftFirstPosition.dx, leftFirstPosition.dy);
+    var position2 = Offset(leftFirstPosition.dx  -50.w, -20.w);
+    var position3 = Offset(leftFirstPosition.dx  + centerWidth/2, -20.w);
+    var position4 = Offset(leftFirstPosition.dx  + centerWidth/2, leftFirstPosition.dy);
+    var position5 = Offset(leftFirstPosition.dx  + centerWidth/2 + 5.w, -12.w);
+    var position6 = Offset(rightFirstPosition.dx  + 55.w, -12.w);
+    var position7 = Offset(rightFirstPosition.dx, rightFirstPosition.dy);
+
+    var points = [position1, position2, position3, position4, position5, position6, position7];
+
+    var earPath = createThreePath(points);
     return earPath;
   }
 
@@ -325,11 +345,11 @@ class RabbitPainter extends CustomPainter{
   }
 
   /// 胡萝卜顶部线条path
-  Path createRadishTopPath(Path leftHandsFeetPath, Path radishHeadPath, Path rightHandsFeetPath) {
+  Path createRadishTopPath(Path leftHandsFeetPath, Path radishLeafPath, Path rightHandsFeetPath) {
     var radishTopPath = Path();
     var radishTopPosition1 = leftHandsFeetPath.getPositionFromPercent(0.07);
-    var radishTopPosition2 = radishHeadPath.getPositionFromPercent(0).translate(0, -6.w);
-    var radishTopPosition3 = radishHeadPath.getPositionFromPercent(1).translate(0, -9.w);
+    var radishTopPosition2 = radishLeafPath.getPositionFromPercent(0).translate(0, -6.w);
+    var radishTopPosition3 = radishLeafPath.getPositionFromPercent(1).translate(0, -9.w);
     var radishTopPosition4 = rightHandsFeetPath.getPositionFromPercent(0.07);
     radishTopPath.moveToPoint(radishTopPosition1);
     radishTopPath.cubicToPoints([radishTopPosition2, radishTopPosition3, radishTopPosition4]);
@@ -467,8 +487,8 @@ class RabbitPainter extends CustomPainter{
     ];
   }
   /// 创建嘴的贝塞尔曲线的点
-  List<Offset> createMouthPoints(Path radishHeadPath){
-    var radishHeadMinYPosition = radishHeadPath.getMinYPosition();
+  List<Offset> createMouthPoints(Path radishLeafPath){
+    var radishHeadMinYPosition = radishLeafPath.getMinYPosition();
     var mouthPosition1 = Offset(radishHeadMinYPosition.dx - 10.w, radishHeadMinYPosition.dy - 20.w);
     var mouthPosition2 = Offset(mouthPosition1.dx - 2.w, mouthPosition1.dy + 10.w);
     var mouthPosition3 = Offset(mouthPosition2.dx + 18.w, mouthPosition2.dy + 5.w);
@@ -489,12 +509,12 @@ class RabbitPainter extends CustomPainter{
   }
 
   /// 创建尾巴的点
-  Path createTailPath(Path rightPath){
+  Path createTailPath(Path rightBodyPath){
     var tailPath = Path();
-    var tailPosition1 = rightPath.getPositionFromPercent(0.8);
+    var tailPosition1 = rightBodyPath.getPositionFromPercent(0.8);
     var tailPosition2 = Offset(tailPosition1.dx + 35.w, tailPosition1.dy - 30.w);
     var tailPosition3 = Offset(tailPosition1.dx + 35.w, tailPosition1.dy + 40.w);
-    var tailPosition4 = rightPath.getPositionFromPercent(0.9);
+    var tailPosition4 = rightBodyPath.getPositionFromPercent(0.9);
 
     tailPath.moveToPoint(tailPosition1);
     tailPath.cubicToPoints([tailPosition2, tailPosition3, tailPosition4]);
